@@ -1,0 +1,94 @@
+{
+    "data": {
+        "payer" : "Humana",
+        "state" : "Alabama",
+        "county" : "",
+        "coverage_type" : "behavioral",
+        "fill_values": {
+            "provider_name": "John Doe",
+            "practice_tin": "1234567",
+            "practice_npi": "1234567893",
+            "provider_npi": "9876543210",
+            "contact_name": "Jane Doe",
+            "contact_email": "contactample.com",
+            "telehealth_only": "No",
+            "more_than_50_providers": 0,
+            "practice_description": {
+                "medicare" : 0,
+                "medicaid" : 0
+            },
+            "contract_categorization" : "CMCH",
+            "request_type" : {
+                "join_behavioral_health_network" : {
+                    "state" : "AZ",
+                    "entity_type" : "solo",
+                    "licensure" : "M.D./D.O.",
+                    "clinic_location" : "",
+                    "new_provider_name" : "",
+                    "new_provider_licensure" : ""
+                },
+                "follow_up_previous_request" : {
+                    "request_more_than_month" : "Yes"
+                },
+                "add_provider_to_contract" : {
+                    "new_provider_name" : "",
+                    "new_provider_licensure" : ""
+                },
+                "term_provider_from_contract" : {
+                    "new_provider_name" : "",
+                    "new_provider_licensure" : ""
+                },
+                "add_location_to_contract" : {
+                    "new_location_effective_date" : "",
+                    "address_update_type" : "",
+                    "new_email_address" : "",
+                    "location_change_type" : "",
+                    "new_clinical_address" : "",
+                    "new_clinical_city" : "",
+                    "new_clinical_state" : "",
+                    "new_clinical_zip_code" : "",
+                    "new_clinical_phone_no" : "",
+                    "new_clinical_fax_no" : "",
+                    "updating_billing_address_flag" : "No",
+                    "new_billing_address" : "",
+                    "new_billing_city" : "",
+                    "new_billing_state" : "",
+                    "new_billing_zip_code" : "",
+                    "new_billing_phone_no" : "",
+                    "new_billing_fax_no" : ""
+                },
+                "demographic_address_update" : {
+                    "new_location_effective_date" : "",
+                    "address_update_type" : "",
+                    "new_email_address" : "",
+                    "location_change_type" : "",
+                    "new_clinical_address" : "",
+                    "new_clinical_city" : "",
+                    "new_clinical_state" : "",
+                    "new_clinical_zip_code" : "",
+                    "new_clinical_phone_no" : "",
+                    "new_clinical_fax_no" : "",
+                    "updating_billing_address_flag" : "No",
+                    "new_billing_address" : "",    
+                    "new_billing_state" : "",
+                    "new_billing_zip_code" : "",
+                    "new_billing_phone_no" : "",
+                    "new_billing_fax_no" : ""
+                },
+                "credentialling_question" : {
+                    "request_more_than_month" : "Yes"
+                },
+                "enrollment_network_status" : {
+                    "request_more_than_month" : "Yes"
+                },
+                "other" : {
+                    "question" : ""
+                }
+
+            },
+            "submit_flag" : 0,
+            "document_recipient_email" : ""
+        }
+    }
+
+}
