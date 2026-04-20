@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "email-validator>=2.3.0",
-    "fastapi>=0.135.3",
+    "fastapi[standard]>=0.135.3",
     "httpx>=0.28.1",
     "numpy>=2.4.4",
     "pandas>=3.0.2",
@@ -20,7 +20,7 @@ dependencies = [
     "rich>=15.0.0",
     "sentry-sdk>=2.58.0",
     "typer>=0.24.1",
-    "uvicorn>=0.44.0",
+    "uvicorn[standard]>=0.44.0",
 ]
 
 [dependency-groups]
@@ -29,4 +29,5 @@ dev = [
     "flake8>=7.3.0",
     "mypy>=1.20.1",
     "pylint>=4.0.5",
+    "uvicorn>=0.44.0",
 ]
