@@ -137,7 +137,7 @@ class Automation:
 
     def start(self):
         """main process"""
-        playwright, browser, context, page = self.launch_browser()
+        playwright, browser, context, page = self.launch_browser(True)
         ret = ""
 
         try:

@@ -6,5 +6,6 @@ ADD . /app
 WORKDIR /app
 
 RUN uv sync --frozen --no-dev
+RUN uv run playwright install --with-deps firefox
 
 CMD ["uv", "run" , "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
