@@ -7,10 +7,12 @@ from pydantic import (
     EmailStr,
     field_validator,
 )
+from app.bots.hmnbhos.handler import Automation
+from app.routers import all_routers
 
 PAYER_LIST_FILEPATH = "payers_list.csv"
 
-api = FastAPI()
+app = FastAPI()
 
 df = pd.read_csv(PAYER_LIST_FILEPATH)
 payer_list = df["Payers"].dropna().astype(str).unique().tolist()
@@ -49,11 +51,14 @@ class ValidationRequest(BaseModel):
     data: DataPayload
 
 
-# @api.get("/")
-# def index():
-#     return {"message": "Hello World"}
+for router in all_routers:
+    app.include_router(
+        router, prefix=f"/api/bots{router.base_path}", tags=["bots"]
+    )
 
+# @app.post("/api")
+# def fetch_items(payload: ValidationRequest):
+#     handler = Automation(payload.model_dump())
+#     handler_response = handler.start()
 
-@api.post("/validation/")
-async def fetch_items(_: ValidationRequest):
-    return {"status": "ok"}
+#     return {"status": "accepted", "result": handler_response}

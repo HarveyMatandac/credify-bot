@@ -5,6 +5,8 @@ import time
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import Error as PlaywrightError
 
+SAMPLE_INPUT_JSON = "sample_input/test_input.json"
+
 TEST_URL = (
     r"https://forms.office.com/pages/responsepage.aspx?id=vivGVpiFhUue"
     + r"URynU_pQ8hUlKcsMk4ZLvrXNTcI3pF5UMFVFTTVLNjJaSjY2QUNJTzgzUDNFNkgwMy4u"
@@ -21,8 +23,9 @@ TEST_CONTACT_EMAIL = "contact@sample.com"
 class Automation:
     """Automation class"""
 
-    def __init__(self):
+    def __init__(self, payload: dict):
         """Init function"""
+        self.payload = payload
         self.question_locators = {}
 
     def launch_browser(self, headless=False):
@@ -135,6 +138,7 @@ class Automation:
     def start(self):
         """main process"""
         playwright, browser, context, page = self.launch_browser()
+        ret = ""
 
         try:
             page.goto(TEST_URL)
@@ -144,15 +148,24 @@ class Automation:
             # For visual checking
             page.wait_for_timeout(30_000)
 
+            ret = "success"
+
         except PlaywrightError as e:
             print("Playwright Error: " + str(e))
+            ret = "failed"
 
         except Exception as e:  # pylint: disable=broad-except
             print(str(e))
+            ret = "failed"
 
         finally:
             self.kill_browser(playwright, browser, context)
 
+        return ret
+
 
 if __name__ == "__main__":
-    Automation().start()
+    with open(SAMPLE_INPUT_JSON, "r") as file:
+        data_dict = json.load(file)
+
+    Automation(data_dict).start()
