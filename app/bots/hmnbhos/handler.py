@@ -2,8 +2,10 @@
 
 import json
 import time
+from contextlib import contextmanager
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import Error as PlaywrightError
+from app.dependencies import JobLogger
 
 SAMPLE_INPUT_JSON = "sample_input/test_input.json"
 
@@ -28,14 +30,19 @@ class Automation:
         self.payload = payload
         self.question_locators = {}
 
-    def launch_browser(self, headless=False):
-        """launch chosen browser"""
-        playwright = sync_playwright().start()
-        browser = playwright.firefox.launch(headless=headless)
-        context = browser.new_context()
-        page = context.new_page()
-
-        return playwright, browser, context, page
+    # @contextmanager
+    # def launch_browser(self, headless):
+    #     """Launch browser object with automatic handling setup"""
+    #     # Create Playwright API object by starting driver process
+    #     playwright = sync_playwright().start()
+    #     browser = playwright.firefox.launch(headless=headless)
+    #     context = browser.new_context()
+    #     page = context.new_page()
+    #     try:
+    #         yield page
+    #     finally:
+    #         browser.close()
+    #         playwright.stop()
 
     def initialize_locators(self, page):
         """Initialize locators needed"""
@@ -129,43 +136,44 @@ class Automation:
         time.sleep(5)
         self.question_locators["next_button"].click()
 
-    def kill_browser(self, playwright, browser, context):
-        """Stop/kill the browser"""
-        context.close()
-        browser.close()
-        playwright.stop()
-
-    def start(self):
+    @contextmanager
+    def start(self, job_id, headless=True):
         """main process"""
-        playwright, browser, context, page = self.launch_browser(True)
-        ret = ""
+        # ret = ""
 
-        try:
-            page.goto(TEST_URL)
-            self.initialize_locators(page)
-            self.crawl()
+        JobLogger().update_job(job_id, "running")
 
-            # For visual checking
-            page.wait_for_timeout(30_000)
+        # with self.launch_browser(headless) as page:
+        with sync_playwright() as playwright:
+            browser = playwright.firefox.launch(headless=headless)
+            context = browser.new_context()
+            page = context.new_page()
+            try:
+                page.goto(TEST_URL)
+                self.initialize_locators(page)
+                self.crawl()
 
-            ret = "success"
+                # For visual checking
+                page.wait_for_timeout(30_000)
 
-        except PlaywrightError as e:
-            print("Playwright Error: " + str(e))
-            ret = "failed"
+                # ret = "success"
+                JobLogger().update_job(job_id, "success")
 
-        except Exception as e:  # pylint: disable=broad-except
-            print(str(e))
-            ret = "failed"
+            except PlaywrightError as e:
+                print("Playwright Error: " + str(e))
+                # ret = "failed"
+                JobLogger().update_job(job_id, "failed", str(e))
 
-        finally:
-            self.kill_browser(playwright, browser, context)
+            except Exception as e:  # pylint: disable=broad-except
+                print(str(e))
+                # ret = "failed"
+                JobLogger().update_job(job_id, "failed", str(e))
 
-        return ret
+        # return ret
 
 
 if __name__ == "__main__":
     with open(SAMPLE_INPUT_JSON, "r") as file:
         data_dict = json.load(file)
 
-    Automation(data_dict).start()
+    Automation(data_dict).start(False)
