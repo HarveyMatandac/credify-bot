@@ -1,7 +1,7 @@
 """Application main function"""
 
 from fastapi import FastAPI
-from app.routers import all_routers
+from payer_website_autofiller.frontend.routers import all_routers
 
 
 app = FastAPI()

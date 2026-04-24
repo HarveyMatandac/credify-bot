@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import Annotated, Literal, Dict, Any
 from pydantic import BaseModel, Field, EmailStr, field_validator
-from app.core import const
+from payer_website_autofiller.frontend.core import const
 
 
 df = pd.read_csv(const.PAYER_LIST_FILEPATH)

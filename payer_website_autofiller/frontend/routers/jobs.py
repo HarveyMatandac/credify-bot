@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.db.database import redis_client
+from payer_website_autofiller.frontend.db.database import redis_client
 
 router = APIRouter()
 router.base_path = "/jobs"

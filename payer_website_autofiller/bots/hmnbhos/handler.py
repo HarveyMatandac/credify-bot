@@ -5,7 +5,6 @@ import time
 from contextlib import contextmanager
 from playwright.sync_api import sync_playwright
 from playwright.sync_api import Error as PlaywrightError
-from app.dependencies import JobLogger
 
 SAMPLE_INPUT_JSON = "sample_input/test_input.json"
 
@@ -25,24 +24,10 @@ TEST_CONTACT_EMAIL = "contact@sample.com"
 class Automation:
     """Automation class"""
 
-    def __init__(self, payload: dict):
+    def __init__(self, payload):
         """Init function"""
         self.payload = payload
         self.question_locators = {}
-
-    # @contextmanager
-    # def launch_browser(self, headless):
-    #     """Launch browser object with automatic handling setup"""
-    #     # Create Playwright API object by starting driver process
-    #     playwright = sync_playwright().start()
-    #     browser = playwright.firefox.launch(headless=headless)
-    #     context = browser.new_context()
-    #     page = context.new_page()
-    #     try:
-    #         yield page
-    #     finally:
-    #         browser.close()
-    #         playwright.stop()
 
     def initialize_locators(self, page):
         """Initialize locators needed"""
@@ -145,8 +130,8 @@ class Automation:
             page = context.new_page()
             try:
                 page.goto(TEST_URL)
-                self.initialize_locators(page)
-                self.crawl()
+                # self.initialize_locators(page)
+                # self.crawl()
 
                 # For visual checking
                 page.wait_for_timeout(30_000)
@@ -159,7 +144,7 @@ class Automation:
 
 
 if __name__ == "__main__":
-    with open(SAMPLE_INPUT_JSON, "r") as file:
+    with open(SAMPLE_INPUT_JSON, "r", "utf-8") as file:
         data_dict = json.load(file)
 
     Automation(data_dict).start(False)

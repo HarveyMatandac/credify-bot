@@ -1,8 +1,7 @@
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter
 from prefect import flow, task
-from app.bots.hmnbhos.handler import Automation
-from app.schemas import ValidationRequest
-from app.dependencies import JobLogger
+from payer_website_autofiller.bots.hmnbhos.handler import Automation
+from payer_website_autofiller.frontend.schemas import ValidationRequest
 
 router = APIRouter()
 router.base_path = "/hmnbhos"
@@ -10,7 +9,7 @@ router.base_path = "/hmnbhos"
 
 @task
 def hmnbnos_run(payload):
-    handler = Automation(payload.model_dump())
+    handler = Automation(payload)
     with handler.start():
         pass
 
