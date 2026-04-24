@@ -137,13 +137,8 @@ class Automation:
         self.question_locators["next_button"].click()
 
     @contextmanager
-    def start(self, job_id, headless=True):
+    def start(self, headless=True):
         """main process"""
-        # ret = ""
-
-        JobLogger().update_job(job_id, "running")
-
-        # with self.launch_browser(headless) as page:
         with sync_playwright() as playwright:
             browser = playwright.firefox.launch(headless=headless)
             context = browser.new_context()
@@ -155,21 +150,12 @@ class Automation:
 
                 # For visual checking
                 page.wait_for_timeout(30_000)
-
-                # ret = "success"
-                JobLogger().update_job(job_id, "success")
-
+                yield
             except PlaywrightError as e:
                 print("Playwright Error: " + str(e))
-                # ret = "failed"
-                JobLogger().update_job(job_id, "failed", str(e))
 
             except Exception as e:  # pylint: disable=broad-except
                 print(str(e))
-                # ret = "failed"
-                JobLogger().update_job(job_id, "failed", str(e))
-
-        # return ret
 
 
 if __name__ == "__main__":
