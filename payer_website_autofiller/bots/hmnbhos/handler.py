@@ -144,7 +144,7 @@ class Automation:
 
 
 if __name__ == "__main__":
-    with open(SAMPLE_INPUT_JSON, "r", "utf-8") as file:
+    with open(SAMPLE_INPUT_JSON, "r", encoding="utf-8") as file:
         data_dict = json.load(file)
 
     Automation(data_dict).start(False)
