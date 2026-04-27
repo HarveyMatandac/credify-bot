@@ -3,7 +3,7 @@ version: "0.0.1"
 services:
   api:
     build: .
-    image: test-autofill-app-with-prefect-2
+    image: test-autofill-app-with-prefect-multistage
     ports:
       - "8000:8000"
     environment:
