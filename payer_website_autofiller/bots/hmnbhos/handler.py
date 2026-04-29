@@ -3,8 +3,11 @@
 import json
 import time
 from contextlib import contextmanager
-from playwright.sync_api import sync_playwright
-from playwright.sync_api import Error as PlaywrightError
+
+# from playwright.sync_api import sync_playwright
+# from playwright.sync_api import Error as PlaywrightError
+from patchright.sync_api import sync_playwright
+from patchright.sync_api import Error as PlaywrightError
 
 SAMPLE_INPUT_JSON = "sample_input/test_input.json"
 
@@ -122,7 +125,7 @@ class Automation:
         self.question_locators["next_button"].click()
 
     @contextmanager
-    def start(self, headless=True):
+    def start(self, headless=False):
         """main process"""
         with sync_playwright() as playwright:
             browser = playwright.firefox.launch(headless=headless)
