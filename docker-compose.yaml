@@ -1,11 +1,26 @@
-version: "0.0.1"
-
 services:
   api:
-    build: .
+    build:
+      target:  api
+    entrypoint: /bin/bash -c
+    command: 
+      - tail -f /dev/null
     image: test-autofill-app-with-prefect-multistage
+    volumes: 
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./uv.lock:/app/uv.lock
+      - ./.python-version:/app/.python-version
+      - ./payer_website_autofiller:/app/payer_website_autofiller
     ports:
       - "8000:8000"
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+
+  hmnbhos_service:
+    build:
+      target: api
+    command: uv run -m payer_website_autofiller.workers.create_deployment
+    # image: test-autofill-app-with-prefect-multistage
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
   
