@@ -1,11 +1,9 @@
-import pandas as pd
 from typing import Annotated, Literal, Dict, Any
 from pydantic import BaseModel, Field, EmailStr, field_validator
 from payer_website_autofiller.frontend.core import const
 
 
-df = pd.read_csv(const.PAYER_LIST_FILEPATH)
-payer_list = df["Payers"].dropna().astype(str).unique().tolist()
+payer_list = const.SAMPLE_PAYER_LIST
 
 
 class ProviderInfo(BaseModel):
