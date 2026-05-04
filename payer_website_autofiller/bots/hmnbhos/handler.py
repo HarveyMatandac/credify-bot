@@ -4,8 +4,6 @@ import json
 import time
 from contextlib import contextmanager
 
-# from playwright.sync_api import sync_playwright
-# from playwright.sync_api import Error as PlaywrightError
 from patchright.sync_api import sync_playwright
 from patchright.sync_api import Error as PlaywrightError
 
@@ -128,13 +126,13 @@ class Automation:
     def start(self, headless=False):
         """main process"""
         with sync_playwright() as playwright:
-            browser = playwright.firefox.launch(headless=headless)
+            browser = playwright.chromium.launch(headless=headless)
             context = browser.new_context()
             page = context.new_page()
             try:
                 page.goto(TEST_URL)
-                # self.initialize_locators(page)
-                # self.crawl()
+                self.initialize_locators(page)
+                self.crawl()
 
                 # For visual checking
                 page.wait_for_timeout(30_000)
@@ -144,10 +142,3 @@ class Automation:
 
             except Exception as e:  # pylint: disable=broad-except
                 print(str(e))
-
-
-if __name__ == "__main__":
-    with open(SAMPLE_INPUT_JSON, "r", encoding="utf-8") as file:
-        data_dict = json.load(file)
-
-    Automation(data_dict).start(False)
