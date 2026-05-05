@@ -11,9 +11,11 @@ WORKDIR /app
 
 COPY pyproject.toml uv.lock .python-version ./
 
-RUN uv venv && uv sync --frozen --no-dev
+RUN uv venv && uv sync --frozen
 
 COPY payer_website_autofiller ./payer_website_autofiller
+
+RUN uv pip install .
 
 # Runtime stage
 FROM base AS api
@@ -25,4 +27,4 @@ COPY --from=builder /app/.venv /app/.venv
 ENV VIRTUAL_ENV=/app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
-CMD ["uvicorn", "payer_website_autofiller.frontend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "payer_website_autofiller.frontend.main:app", "--host", "0.0.0.0", "--port", "8000"]

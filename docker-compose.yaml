@@ -2,9 +2,9 @@ services:
   api:
     build:
       target:  api
-    entrypoint: /bin/bash -c
-    command: 
-      - tail -f /dev/null
+    # entrypoint: /bin/bash -c
+    # command: 
+    #   - tail -f /dev/null
     image: test-autofill-app-with-prefect-multistage
     volumes: 
       - ./pyproject.toml:/app/pyproject.toml
@@ -16,14 +16,17 @@ services:
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
 
-  hmnbhos_service:
+  api-worker:
     build:
       target: api
     command: uv run -m payer_website_autofiller.workers.create_deployment
     # image: test-autofill-app-with-prefect-multistage
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
-  
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+
   postgres:
     image: postgres:14
     environment:
