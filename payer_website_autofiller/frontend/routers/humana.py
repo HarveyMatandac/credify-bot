@@ -29,9 +29,7 @@ def handlers(payload):
 
 @router.post("/behavioral_health/", status_code=202)
 async def run_behavioral_health(payload: ValidationRequest):
-    await run_deployment(
-        name="handlers/dataloader", parameters={"payload": payload}
-    )
+    await run_deployment(name="dataloader", parameters={"payload": payload})
 
     return {"status": "accepted"}
 
