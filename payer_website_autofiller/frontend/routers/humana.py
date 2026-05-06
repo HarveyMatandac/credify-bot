@@ -1,46 +1,71 @@
+"""Humana routers module"""
+
 from fastapi import APIRouter
 from prefect import flow, task
 from prefect.deployments import run_deployment
-from payer_website_autofiller.bots.hmnbhos import handler as hmnbhos_handler
-from payer_website_autofiller.bots.hmnss import handler as hmnss_handler
+from payer_website_autofiller.bots.humana.behavioral_health import (
+    handler as bh_handler,
+)
+from payer_website_autofiller.bots.humana.specific_states import (
+    handler as ss_handler,
+)
 from payer_website_autofiller.frontend.schemas import ValidationRequest
 
 router = APIRouter()
 router.base_path = "/humana"
 
-AUTOMATIONS = {
-    "behavioral-health": hmnbhos_handler.Automation,
-    "specific-state": hmnss_handler.Automation,
-}
 
-
+# Prefect tasks definitions for Humana automations
 @task
-def run_automation(payload, handler_type):
-    handler_class = AUTOMATIONS.get(handler_type)
-    handler = handler_class(payload)
-    with handler.start():
+def run_behavioral_health_automation(payload):
+    """Behavioral Health automation task"""
+    automation = bh_handler.Automation(payload)
+    with automation.start():
         pass
 
 
+@task
+def run_specific_states_automation(payload):
+    """Specific States automation task"""
+    automation = ss_handler.Automation(payload)
+    with automation.start():
+        pass
+
+
+# Prefect flows definition for Humana automations
 @flow
-def handlers(payload):
-    run_automation(payload, "behavioral-health")
+def humana_automations_flow(payload, sub_type):
+    """Humana automation flows"""
+    match sub_type:
+        case "behavioral_health":
+            run_behavioral_health_automation(payload)
+        case "specific_states":
+            run_specific_states_automation(payload)
 
 
 @router.post("/behavioral_health/", status_code=202)
-async def run_behavioral_health(payload: ValidationRequest):
-    await run_deployment(name="dataloader", parameters={"payload": payload})
+async def behavioral_health_endpoint(payload: ValidationRequest):
+    """Router for Behavioral Health automation"""
+    await run_deployment(
+        name="humana-automations-flow/humana-behavioral-health",
+        parameters={
+            "payload": payload,
+            "sub_type": "behavioral_health",
+        },
+    )
 
     return {"status": "accepted"}
 
 
 @router.post("/specific_states/", status_code=202)
-# async
-def run_specific_states(payload: ValidationRequest):
-
-    # await run_deployment(name="dataloader", parameters={"payload": payload})
-
-    # For debugging
-    run_automation(payload, "specific-state")
+async def specific_states_endpoint(payload: ValidationRequest):
+    """Router for Specific States automation"""
+    await run_deployment(
+        name="humana-automations-flow/humana-specific-states",
+        parameters={
+            "payload": payload,
+            "sub_type": "specific_states",
+        },
+    )
 
     return {"status": "accepted"}

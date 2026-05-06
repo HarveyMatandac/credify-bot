@@ -2,9 +2,6 @@ services:
   api:
     build:
       target:  api
-    # entrypoint: /bin/bash -c
-    # command: 
-    #   - tail -f /dev/null
     image: test-autofill-app-with-prefect-multistage
     volumes: 
       - ./pyproject.toml:/app/pyproject.toml
@@ -16,11 +13,20 @@ services:
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
 
-  api-worker:
+  humana-behavioral-health-worker:
     build:
       target: api
-    command: uv run -m payer_website_autofiller.workers.create_deployment
-    # image: test-autofill-app-with-prefect-multistage
+    command: uv run -m payer_website_autofiller.workers.humana.behavioral_health_worker
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+
+  humana-specific-states-worker:
+    build:
+      target: api
+    command: uv run -m payer_website_autofiller.workers.humana.specific_states_worker
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
     depends_on:

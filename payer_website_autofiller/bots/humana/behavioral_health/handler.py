@@ -123,7 +123,7 @@ class Automation:
         self.question_locators["next_button"].click()
 
     @contextmanager
-    def start(self, headless=False):
+    def start(self, headless=True):
         """main process"""
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=headless)
