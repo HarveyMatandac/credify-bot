@@ -1,7 +1,6 @@
 from typing import Annotated, Literal, Dict, Any
 from pydantic import BaseModel, Field, EmailStr, field_validator
-from payer_website_autofiller.frontend.core import const
-
+from payer_website_autofiller.core import const
 
 payer_list = const.SAMPLE_PAYER_LIST
 
