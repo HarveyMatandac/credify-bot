@@ -8,6 +8,7 @@ services:
       - ./uv.lock:/app/uv.lock
       - ./.python-version:/app/.python-version
       - ./payer_website_autofiller:/app/payer_website_autofiller
+      - ./videos:/app/videos
     ports:
       - "8000:8000"
     environment:

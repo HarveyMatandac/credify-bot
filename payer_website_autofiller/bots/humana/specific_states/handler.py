@@ -2,14 +2,16 @@
 
 import json
 import time
-from contextlib import contextmanager
-
-from patchright.sync_api import sync_playwright
-from patchright.sync_api import Error as PlaywrightError
+from prefect.states import Failed
+from payer_website_autofiller.core.utils import (
+    get_sync_browser,
+    get_browser_context,
+    get_virtual_display,
+)
 
 SAMPLE_INPUT_JSON = "sample_input/test_input.json"
 
-TEST_URL = (
+URL = (
     r"https://humana-6853.quickbase.com/nav/app/buwr742wd/action/appoverview/"
     + r"e807d624-39ca-4ddf-aa99-c512a6aa68d5"
 )
@@ -43,23 +45,21 @@ class Automation:
         """Crawl and autofill website"""
         pass
 
-    @contextmanager
-    def start(self, headless=True):
+    def handle(self):
         """main process"""
-        with sync_playwright() as playwright:
-            browser = playwright.chromium.launch(headless=headless)
-            context = browser.new_context()
-            page = context.new_page()
-            try:
-                page.goto(TEST_URL)
-                time.sleep(15)
-                self.initialize_page_1_locators(page)
+        try:
+            with get_virtual_display():
+                with get_sync_browser() as browser:
+                    with get_browser_context(browser) as context:
+                        page = context.new_page()
 
-                # For visual checking
-                page.wait_for_timeout(30_000)
-                yield
-            except PlaywrightError as e:
-                print("Playwright Error: " + str(e))
+                        page.goto(URL)
+                        self.initialize_page_1_locators(page)
+                        self.crawl()
 
-            except Exception as e:  # pylint: disable=broad-except
-                print(str(e))
+                        # For visual checking
+                        page.wait_for_timeout(30_000)
+                        yield
+
+        except Exception as e:
+            print(str(e))

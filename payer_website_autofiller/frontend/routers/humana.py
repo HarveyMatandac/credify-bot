@@ -20,16 +20,16 @@ router.base_path = "/humana"
 def run_behavioral_health_automation(payload):
     """Behavioral Health automation task"""
     automation = bh_handler.Automation(payload)
-    with automation.start():
-        pass
+    result = automation.handle()
+    return result
 
 
 @task
 def run_specific_states_automation(payload):
     """Specific States automation task"""
     automation = ss_handler.Automation(payload)
-    with automation.start():
-        pass
+    result = automation.handle()
+    return result
 
 
 # Prefect flows definition for Humana automations

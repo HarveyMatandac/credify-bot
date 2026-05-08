@@ -20,6 +20,13 @@ RUN uv pip install .
 # Runtime stage
 FROM base AS api
 
+
+RUN apt-get update && apt-get install -y \
+    xvfb \
+    libx11-6 \
+    libxext6 \
+    libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
 RUN uvx patchright install --with-deps chromium
 
 COPY --from=builder /app/.venv /app/.venv

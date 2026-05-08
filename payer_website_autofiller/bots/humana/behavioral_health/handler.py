@@ -2,14 +2,13 @@
 
 import json
 import time
-from contextlib import contextmanager
+from payer_website_autofiller.core.utils import (
+    get_sync_browser,
+    get_browser_context,
+    get_virtual_display,
+)
 
-from patchright.sync_api import sync_playwright
-from patchright.sync_api import Error as PlaywrightError
-
-SAMPLE_INPUT_JSON = "sample_input/test_input.json"
-
-TEST_URL = (
+URL = (
     r"https://forms.office.com/pages/responsepage.aspx?id=vivGVpiFhUue"
     + r"URynU_pQ8hUlKcsMk4ZLvrXNTcI3pF5UMFVFTTVLNjJaSjY2QUNJTzgzUDNFNkgwMy4u"
 )
@@ -122,23 +121,21 @@ class Automation:
         time.sleep(5)
         self.question_locators["next_button"].click()
 
-    @contextmanager
-    def start(self, headless=True):
+    def handle(self):
         """main process"""
-        with sync_playwright() as playwright:
-            browser = playwright.chromium.launch(headless=headless)
-            context = browser.new_context()
-            page = context.new_page()
-            try:
-                page.goto(TEST_URL)
-                self.initialize_locators(page)
-                self.crawl()
+        try:
+            with get_virtual_display():
+                with get_sync_browser() as browser:
+                    with get_browser_context(browser) as context:
+                        page = context.new_page()
 
-                # For visual checking
-                page.wait_for_timeout(30_000)
-                yield
-            except PlaywrightError as e:
-                print("Playwright Error: " + str(e))
+                        page.goto(URL)
+                        self.initialize_locators(page)
+                        self.crawl()
 
-            except Exception as e:  # pylint: disable=broad-except
-                print(str(e))
+                        # For visual checking
+                        page.wait_for_timeout(30_000)
+                        yield
+
+        except Exception as e:
+            print(str(e))
