@@ -9,7 +9,10 @@ from pyvirtualdisplay import Display
 def get_virtual_display():
     """PyVirtualDisplay context manager"""
     display = Display(visible=True, backend="xvfb")
+
     display.start()
+
+    print("display start")
     try:
         yield display
     finally:
@@ -18,19 +21,15 @@ def get_virtual_display():
 
 
 @contextmanager
-def get_sync_browser():
+def get_sync_browser_context():
     """Patchright browser context manager"""
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=False)
-        yield browser
-
-
-@contextmanager
-def get_browser_context(browser):
-    """Get context from Patchright browser"""
-    context = browser.new_context(record_video_dir="/videos")
-    try:
-        yield context
-    finally:
-        context.close()
-        print("context closed")
+        context = browser.new_context(record_video_dir="app/videos")
+        try:
+            yield context
+        finally:
+            context.close()
+            print("context closed")
+            browser.close()
+            print("browser closed")
