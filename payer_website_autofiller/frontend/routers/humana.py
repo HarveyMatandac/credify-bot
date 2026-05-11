@@ -53,7 +53,6 @@ async def behavioral_health_endpoint(payload: ValidationRequest):
             "sub_type": "behavioral_health",
         },
     )
-
     return {"status": "accepted"}
 
 

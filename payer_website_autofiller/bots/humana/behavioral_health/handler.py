@@ -3,8 +3,7 @@
 import json
 import time
 from payer_website_autofiller.core.utils import (
-    get_sync_browser,
-    get_browser_context,
+    get_sync_browser_context,
     get_virtual_display,
 )
 
@@ -125,17 +124,15 @@ class Automation:
         """main process"""
         try:
             with get_virtual_display():
-                with get_sync_browser() as browser:
-                    with get_browser_context(browser) as context:
-                        page = context.new_page()
+                with get_sync_browser_context() as context:
+                    page = context.new_page()
 
-                        page.goto(URL)
-                        self.initialize_locators(page)
-                        self.crawl()
+                    page.goto(URL)
+                    self.initialize_locators(page)
+                    self.crawl()
 
-                        # For visual checking
-                        page.wait_for_timeout(30_000)
-                        yield
+                    # For visual checking
+                    page.wait_for_timeout(30_000)
 
         except Exception as e:
             print(str(e))

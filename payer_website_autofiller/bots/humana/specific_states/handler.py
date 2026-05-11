@@ -4,8 +4,7 @@ import json
 import time
 from prefect.states import Failed
 from payer_website_autofiller.core.utils import (
-    get_sync_browser,
-    get_browser_context,
+    get_sync_browser_context,
     get_virtual_display,
 )
 
@@ -35,11 +34,7 @@ class Automation:
         ).filter(has_text="Request to Join")
         page.get_by_role("button").filter(has_text="Request to Join").click()
 
-        # page.get_by_test_id("exdb-buttonWidget-createNewRecord").click()
-
-        page.locator(
-            'button[data-test-id="exdb-buttonWidget-createNewRecord"]'
-        ).click()
+        print("click done???")
 
     def crawl(self):
         """Crawl and autofill website"""
@@ -49,17 +44,20 @@ class Automation:
         """main process"""
         try:
             with get_virtual_display():
-                with get_sync_browser() as browser:
-                    with get_browser_context(browser) as context:
-                        page = context.new_page()
+                with get_sync_browser_context() as context:
+                    page = context.new_page()
 
-                        page.goto(URL)
-                        self.initialize_page_1_locators(page)
-                        self.crawl()
+                    page.goto(URL)
+                    self.initialize_page_1_locators(page)
+                    self.crawl()
 
-                        # For visual checking
-                        page.wait_for_timeout(30_000)
-                        yield
+                    # For visual checking
+                    page.wait_for_timeout(30_000)
 
         except Exception as e:
             print(str(e))
+
+
+if __name__ == "__main__":
+    payload = {}
+    Automation(payload).handle()
