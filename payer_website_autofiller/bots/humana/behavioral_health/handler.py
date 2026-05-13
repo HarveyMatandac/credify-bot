@@ -119,6 +119,7 @@ class Automation:
         ).check()
         time.sleep(5)
         self.question_locators["next_button"].click()
+        print("running")
 
     def handle(self):
         """main process"""
@@ -135,4 +136,9 @@ class Automation:
                     page.wait_for_timeout(30_000)
 
         except Exception as e:
-            print(str(e))
+            raise Exception from e
+
+
+if __name__ == "__main__":
+    dummy_payload = {}
+    Automation(dummy_payload).handle()

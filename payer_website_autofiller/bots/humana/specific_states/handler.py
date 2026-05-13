@@ -33,8 +33,7 @@ class Automation:
             "button"
         ).filter(has_text="Request to Join")
         page.get_by_role("button").filter(has_text="Request to Join").click()
-
-        print("click done???")
+        print("running")
 
     def crawl(self):
         """Crawl and autofill website"""
@@ -48,6 +47,7 @@ class Automation:
                     page = context.new_page()
 
                     page.goto(URL)
+
                     self.initialize_page_1_locators(page)
                     self.crawl()
 

@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Dict, Any
+from typing import Annotated, Literal, Dict, Any, Optional
 from pydantic import BaseModel, Field, EmailStr, field_validator
 from payer_website_autofiller.core import const
 
@@ -36,3 +36,20 @@ class DataPayload(PayerInfo):
 
 class ValidationRequest(BaseModel):
     data: DataPayload
+
+
+# Success model
+class SuccessResponse(BaseModel):
+    status: str
+    message: str
+
+
+# Error models
+# Pede enums dito para mas mahigpit error type
+class ErrorDetails(BaseModel):
+    error_type: str
+    details: str
+
+
+class AutomationResponse(SuccessResponse):
+    error: Optional[ErrorDetails] = None
