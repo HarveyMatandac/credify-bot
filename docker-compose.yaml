@@ -2,7 +2,7 @@ services:
   api:
     build:
       target:  api
-    image: test-autofill-app-with-prefect-multistage
+    image: test-autofill-app-with-prefect-api-sample-website
     volumes: 
       - ./pyproject.toml:/app/pyproject.toml
       - ./uv.lock:/app/uv.lock
@@ -28,6 +28,16 @@ services:
     build:
       target: api
     command: uv run -m payer_website_autofiller.workers.humana.specific_states_worker
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+
+  sample-payer-website-worker:
+    build:
+      target: api
+    command: uv run -m payer_website_autofiller.workers.sample_payer.sample_website_worker
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
     depends_on:
