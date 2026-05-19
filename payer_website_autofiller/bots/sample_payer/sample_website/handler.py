@@ -1,7 +1,6 @@
 """Handler for Humana website"""
 
 import json
-import time
 from dataclasses import dataclass
 from prefect import task
 from prefect.cache_policies import NO_CACHE
@@ -15,6 +14,8 @@ URL = "https://fill.dev/"
 
 @dataclass
 class Info:
+    """Type annotation for extract info return"""
+
     first_name: str
     middle_name: str
     last_name: str
@@ -38,6 +39,8 @@ class Automation:
     @task(cache_policy=NO_CACHE)
     def _access_url(self, page):
         page.goto(URL)
+
+        # return page
 
     @task
     def _extract_info(self) -> Info:
@@ -72,7 +75,10 @@ class Automation:
         page.get_by_role("textbox", name="First name").fill(info.first_name)
         page.get_by_role("textbox", name="Middle name").fill(info.middle_name)
         page.get_by_role("textbox", name="Last name").fill(info.last_name)
-        page.get_by_role("textbox", name="Phone number").fill(info.phone_number)
+        page.get_by_role(
+            "textbox",
+            name="Phone number",
+        ).fill(info.phone_number)
         page.locator("input[autocomplete='address-line1']").nth(0).fill(
             info.street_address_1
         )
@@ -106,9 +112,9 @@ class Automation:
                     # For visual checking
                     page.wait_for_timeout(5_000)
 
-        except Exception as e:
-            # raise Exception from e
+        except Exception as e:  # pylint: disable=broad-except
             print(str(e))
+            raise Exception from e  # pylint: disable=broad-exception-raised
 
 
 if __name__ == "__main__":

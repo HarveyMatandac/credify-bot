@@ -19,7 +19,7 @@ from payer_website_autofiller.frontend.schemas import (
 )
 
 router = APIRouter()
-router.base_path = "/humana"
+router.base_path = "/humana"  # type: ignore[attr-defined]
 
 
 # Prefect tasks definitions for Humana automations
@@ -27,8 +27,6 @@ router.base_path = "/humana"
 def run_behavioral_health_automation(payload):
     """Behavioral Health automation task"""
     automation = bh_handler.Automation(payload)
-    # result = automation.handle()
-    # return result
     automation.handle()
 
 
@@ -36,15 +34,7 @@ def run_behavioral_health_automation(payload):
 def run_specific_states_automation(payload):
     """Specific States automation task"""
     automation = ss_handler.Automation(payload)
-    # result = automation.handle()
-    # return result
     automation.handle()
-
-
-# AUTOMATIONS = {
-#     "behavioral-health": run_behavioral_health_automation,
-#     "specific-state": run_specific_states_automation,
-# }
 
 
 # Prefect flows definition for Humana automations
@@ -56,10 +46,6 @@ def humana_automations_flow(payload, sub_type):
             run_behavioral_health_automation(payload)
         case "specific_states":
             run_specific_states_automation(payload)
-
-    # if sub_type in AUTOMATIONS:
-    #     automation_task = AUTOMATIONS.get(sub_type)
-    #     automation_task(payload)
 
 
 @router.post("/behavioral_health/", response_model=AutomationResponse)
@@ -74,7 +60,7 @@ async def behavioral_health_endpoint(payload: ValidationRequest):
                 "payload": payload,
                 "sub_type": "behavioral_health",
             },
-        )
+        )  # type: ignore
 
         return AutomationResponse(
             status="success", message="Automation Successful!"
@@ -112,6 +98,6 @@ async def specific_states_endpoint(payload: ValidationRequest):
             "payload": payload,
             "sub_type": "specific_states",
         },
-    )
+    )  # type: ignore
 
     return {"status": "accepted"}

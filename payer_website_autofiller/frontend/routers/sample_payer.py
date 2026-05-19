@@ -10,13 +10,12 @@ from payer_website_autofiller.bots.sample_payer.sample_website import (
     handler as sample_handler,
 )
 from payer_website_autofiller.frontend.schemas import (
-    ValidationRequest,
     ErrorDetails,
     AutomationResponse,
 )
 
 router = APIRouter()
-router.base_path = "/sample_payer"
+router.base_path = "/sample_payer"  # type: ignore[attr-defined]
 
 
 # Prefect flows definition for sample payer automations

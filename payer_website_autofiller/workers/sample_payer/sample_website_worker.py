@@ -6,7 +6,7 @@ from payer_website_autofiller.frontend.routers.sample_payer import (
 )
 
 
-def dataloader():
+def _dataloader():
     run_bot.serve(
         "sample_website_deployment",
         entrypoint_type=EntrypointType.MODULE_PATH,
@@ -15,4 +15,4 @@ def dataloader():
 
 
 if __name__ == "__main__":
-    dataloader()
+    _dataloader()

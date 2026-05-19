@@ -9,7 +9,7 @@ from payer_website_autofiller.frontend.routers.sample_payer import (
     router as sample_payer_router,
 )
 
-# initialize list of all imported routers
+# Initialize list of all imported routers
 all_routers = [
     humana_router,
     sample_payer_router,

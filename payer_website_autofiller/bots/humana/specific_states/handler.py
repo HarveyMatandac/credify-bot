@@ -1,8 +1,5 @@
 """Handler for Humana website (Specific state)"""
 
-import json
-import time
-from prefect.states import Failed
 from payer_website_autofiller.core.utils import (
     get_sync_browser_context,
     get_virtual_display,
@@ -35,10 +32,6 @@ class Automation:
         page.get_by_role("button").filter(has_text="Request to Join").click()
         print("running")
 
-    def crawl(self):
-        """Crawl and autofill website"""
-        pass
-
     def handle(self):
         """main process"""
         try:
@@ -49,15 +42,15 @@ class Automation:
                     page.goto(URL)
 
                     self.initialize_page_1_locators(page)
-                    self.crawl()
 
                     # For visual checking
                     page.wait_for_timeout(30_000)
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             print(str(e))
+            raise Exception from e  # pylint: disable=broad-exception-raised
 
 
 if __name__ == "__main__":
-    payload = {}
-    Automation(payload).handle()
+    dummy_payload: dict = {}
+    Automation(dummy_payload).handle()

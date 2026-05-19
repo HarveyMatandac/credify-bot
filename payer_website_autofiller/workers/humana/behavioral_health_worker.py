@@ -6,7 +6,7 @@ from payer_website_autofiller.frontend.routers.humana import (
 )
 
 
-def dataloader():
+def _dataloader():
     run_bot.serve(
         "humana-behavioral-health",
         entrypoint_type=EntrypointType.MODULE_PATH,
@@ -15,4 +15,4 @@ def dataloader():
 
 
 if __name__ == "__main__":
-    dataloader()
+    _dataloader()

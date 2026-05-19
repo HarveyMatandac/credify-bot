@@ -1,6 +1,5 @@
 """Handler for Humana website"""
 
-import json
 import time
 from payer_website_autofiller.core.utils import (
     get_sync_browser_context,
@@ -135,10 +134,11 @@ class Automation:
                     # For visual checking
                     page.wait_for_timeout(30_000)
 
-        except Exception as e:
-            raise Exception from e
+        except Exception as e:  # pylint: disable=broad-except
+            print(str(e))
+            raise Exception from e  # pylint: disable=broad-exception-raised
 
 
 if __name__ == "__main__":
-    dummy_payload = {}
+    dummy_payload: dict = {}
     Automation(dummy_payload).handle()
