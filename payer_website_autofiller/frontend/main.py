@@ -7,8 +7,8 @@ app = FastAPI()
 
 # Loop all routers of router folder
 for router in all_routers:
-    base_path = router.base_path.strip("/")  # type: ignore[attr-defined]
-    payer_name = base_path
+    base_path = router.base_path  # type: ignore[attr-defined]
+    payer_name = base_path.strip("/")
 
     app.include_router(
         router,

@@ -1,6 +1,6 @@
 """Router for sample payer automation"""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
 from prefect import flow
 from prefect.deployments import run_deployment
 from patchright.sync_api import (
@@ -22,16 +22,16 @@ router.base_path = "/sample_payer"  # type: ignore[attr-defined]
 @flow
 def sample_automation_flow(payload):
     """sample automation flow"""
-    sample_handler.Automation.handle(payload)
+    sample_handler.Automation(payload).handle()
 
 
-@router.post("/sample_website", response_model=AutomationResponse)
-async def sample_website(payload):
+@router.post("/sample_website/", response_model=AutomationResponse)
+def sample_website(payload: dict = Body(...)):
     """Router for sample website automation"""
 
     try:
         # Run in existing deployment in prefect
-        await run_deployment(
+        run_deployment(
             name="sample-automation-flow/sample_website_deployment",
             parameters={"payload": payload},
         )
@@ -47,7 +47,7 @@ async def sample_website(payload):
                 status="error",
                 message="Locator(s) was not detected",
                 error=ErrorDetails(error_type="Timeout Error", details=str(e)),
-            ),
+            ).model_dump(),
         ) from e
 
     except Exception as e:
@@ -59,5 +59,5 @@ async def sample_website(payload):
                 error=ErrorDetails(
                     error_type="Automation Error", details=str(e)
                 ),
-            ),
+            ).model_dump(),
         ) from e
