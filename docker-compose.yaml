@@ -13,37 +13,33 @@ services:
       - "8000:8000"
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
-
-  humana-behavioral-health-worker:
-    build:
-      target: api
-    command: uv run -m payer_website_autofiller.workers.humana.behavioral_health_worker
-    environment:
-      PREFECT_API_URL: http://prefect-server:4200/api
     depends_on:
-      prefect-server:
+      db:
         condition: service_healthy
+    env_file:
+      - .env
 
-  humana-specific-states-worker:
-    build:
-      target: api
-    command: uv run -m payer_website_autofiller.workers.humana.specific_states_worker
+  # Database service
+  db:
+    image: mysql:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
-      PREFECT_API_URL: http://prefect-server:4200/api
-    depends_on:
-      prefect-server:
-        condition: service_healthy
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
-  sample-payer-website-worker:
-    build:
-      target: api
-    command: uv run -m payer_website_autofiller.workers.sample_payer.sample_website_worker
-    environment:
-      PREFECT_API_URL: http://prefect-server:4200/api
-    depends_on:
-      prefect-server:
-        condition: service_healthy
 
+  # Prefect services
   postgres:
     image: postgres:14
     environment:
@@ -119,6 +115,38 @@ services:
     command: prefect worker start --pool local-pool
     restart: on-failure
 
+  # Worker services
+  humana-behavioral-health-worker:
+    build:
+      target: api
+    command: uv run -m payer_website_autofiller.workers.humana.behavioral_health_worker
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+
+  humana-specific-states-worker:
+    build:
+      target: api
+    command: uv run -m payer_website_autofiller.workers.humana.specific_states_worker
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+
+  sample-payer-website-worker:
+    build:
+      target: api
+    command: uv run -m payer_website_autofiller.workers.sample_payer.sample_website_worker
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+
 volumes:
   postgres_data:
   valkey_data:
+  mysql_data:
