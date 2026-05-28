@@ -1,3 +1,10 @@
+x-settings:
+  mysql_env_vars: &mysql_env_vars
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    MYSQL_DATABASE: ${MYSQL_DATABASE}
+    MYSQL_USER: ${MYSQL_USER}
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
 services:
   api:
     build:
@@ -33,11 +40,7 @@ services:
       timeout: 5s
       retries: 5
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-
+      <<: *mysql_env_vars
 
   # Prefect services
   postgres:
@@ -121,6 +124,8 @@ services:
       target: api
     command: uv run -m payer_website_autofiller.workers.humana.behavioral_health_worker
     environment:
+      environment:
+      <<: *mysql_env_vars
       PREFECT_API_URL: http://prefect-server:4200/api
     depends_on:
       prefect-server:
@@ -131,6 +136,7 @@ services:
       target: api
     command: uv run -m payer_website_autofiller.workers.humana.specific_states_worker
     environment:
+      <<: *mysql_env_vars
       PREFECT_API_URL: http://prefect-server:4200/api
     depends_on:
       prefect-server:
@@ -141,6 +147,7 @@ services:
       target: api
     command: uv run -m payer_website_autofiller.workers.sample_payer.sample_website_worker
     environment:
+      <<: *mysql_env_vars
       PREFECT_API_URL: http://prefect-server:4200/api
     depends_on:
       prefect-server:

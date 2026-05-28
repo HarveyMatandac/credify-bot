@@ -1,4 +1,4 @@
-"""Module containing all Pydantic schemas"""
+"""Module containing all schemas"""
 
 from typing import Annotated, Literal, Dict, Any, Optional
 from pydantic import BaseModel, Field, EmailStr, field_validator
