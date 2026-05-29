@@ -1,6 +1,8 @@
 """Common utils module"""
 
 import os
+import json
+import hashlib
 from contextlib import contextmanager
 from patchright.sync_api import sync_playwright
 from pyvirtualdisplay import Display
@@ -40,6 +42,13 @@ def get_sync_browser_context():
             print("context closed")
             browser.close()
             print("browser closed")
+
+
+def parse_payload(payload):
+    json_string = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    hash_object = hashlib.sha256(json_string.encode("utf-8")).hexdigest()
+
+    return hash_object
 
 
 # Database methods and functions

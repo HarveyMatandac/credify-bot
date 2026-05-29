@@ -1,9 +1,9 @@
 """Router for sample payer automation"""
 
-import uuid
 from fastapi import APIRouter, HTTPException, Body, Depends
 from prefect import flow
 from prefect.deployments import run_deployment
+from sqlalchemy.exc import IntegrityError
 from patchright.sync_api import (
     TimeoutError as PlaywrightTimeoutError,
 )
@@ -14,6 +14,7 @@ from payer_website_autofiller.core.utils import (
     update_job_by_job_id,
     delete_job,
     update_job_on_run_state,
+    parse_payload,
 )
 from payer_website_autofiller.bots.sample_payer.sample_website import (
     handler as sample_handler,
@@ -47,12 +48,13 @@ def read_sample_website_job(job_id: str, conn=Depends(get_db)):
     return {job.job_id, job.run_id, job.status}
 
 
-@router.post("/sample_website/", response_model=AutomationResponse)
+@router.post("/sample_website/")
 def create_sample_website_job(payload: dict = Body(...), conn=Depends(get_db)):
     """Router for sample website automation"""
 
     try:
-        job_id = uuid.uuid4()
+        # Hash request parameters
+        job_id = parse_payload(payload)
 
         create_job(conn, job_id, "", status="Created")
 
@@ -73,6 +75,18 @@ def create_sample_website_job(payload: dict = Body(...), conn=Depends(get_db)):
                 status="error",
                 message="Locator(s) was not detected",
                 error=ErrorDetails(error_type="Timeout Error", details=str(e)),
+            ).model_dump(),
+        ) from e
+
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=408,
+            detail=AutomationResponse(
+                status="error",
+                message="duplicate entry",
+                error=ErrorDetails(
+                    error_type="Automation Error", details=str(e)
+                ),
             ).model_dump(),
         ) from e
 
