@@ -52,55 +52,20 @@ def read_sample_website_job(job_id: str, conn=Depends(get_db)):
 def create_sample_website_job(payload: dict = Body(...), conn=Depends(get_db)):
     """Router for sample website automation"""
 
-    try:
-        # Hash request parameters
-        job_id = parse_payload(payload)
+    # Hash request parameters
+    job_id = parse_payload(payload)
 
-        create_job(conn, job_id, "", status="Created")
+    create_job(conn, job_id, "", status="Created")
 
-        # Run in existing deployment in prefect
-        run_deployment(
-            name="sample-automation-flow/sample_website_deployment",
-            parameters={"payload": payload, "job_id": job_id},
-        )
+    # Run in existing deployment in prefect
+    run_deployment(
+        name="sample-automation-flow/sample_website_deployment",
+        parameters={"payload": payload, "job_id": job_id},
+    )
 
-        return AutomationResponse(
-            status="success", message="Automation Successful!"
-        )
-
-    except PlaywrightTimeoutError as e:
-        raise HTTPException(
-            status_code=408,
-            detail=AutomationResponse(
-                status="error",
-                message="Locator(s) was not detected",
-                error=ErrorDetails(error_type="Timeout Error", details=str(e)),
-            ).model_dump(),
-        ) from e
-
-    except IntegrityError as e:
-        raise HTTPException(
-            status_code=408,
-            detail=AutomationResponse(
-                status="error",
-                message="duplicate entry",
-                error=ErrorDetails(
-                    error_type="Automation Error", details=str(e)
-                ),
-            ).model_dump(),
-        ) from e
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=AutomationResponse(
-                status="error",
-                message="Automation Error Occured",
-                error=ErrorDetails(
-                    error_type="Automation Error", details=str(e)
-                ),
-            ).model_dump(),
-        ) from e
+    return AutomationResponse(
+        status="success", message="Automation Successful!"
+    )
 
 
 @router.put("/sample_website/{job_id}")

@@ -3,6 +3,7 @@
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from payer_website_autofiller.core.exceptions import register_exception_handlers
 from payer_website_autofiller.frontend.routers import all_routers
 from payer_website_autofiller.db.database import Base, engine
 
@@ -17,6 +18,9 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+# Register FastAPI exceptions for all routes
+register_exception_handlers(app)
 
 
 # Loop all routers of router folder
