@@ -5,6 +5,18 @@ x-settings:
     MYSQL_USER: ${MYSQL_USER}
     MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
+  prefect_api_var: &prefect_api_var
+    PREFECT_API_URL: http://prefect-server:4200/api
+
+  worker_base: &worker_base
+    build:
+      target: api
+    environment:
+      <<: [*mysql_env_vars, *prefect_api_var]
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+        
 services:
   api:
     build:
@@ -120,38 +132,16 @@ services:
 
   # Worker services
   humana-behavioral-health-worker:
-    build:
-      target: api
+    <<: *worker_base
     command: uv run -m payer_website_autofiller.workers.humana.behavioral_health_worker
-    environment:
-      environment:
-      <<: *mysql_env_vars
-      PREFECT_API_URL: http://prefect-server:4200/api
-    depends_on:
-      prefect-server:
-        condition: service_healthy
 
   humana-specific-states-worker:
-    build:
-      target: api
+    <<: *worker_base
     command: uv run -m payer_website_autofiller.workers.humana.specific_states_worker
-    environment:
-      <<: *mysql_env_vars
-      PREFECT_API_URL: http://prefect-server:4200/api
-    depends_on:
-      prefect-server:
-        condition: service_healthy
 
   sample-payer-website-worker:
-    build:
-      target: api
+    <<: *worker_base
     command: uv run -m payer_website_autofiller.workers.sample_payer.sample_website_worker
-    environment:
-      <<: *mysql_env_vars
-      PREFECT_API_URL: http://prefect-server:4200/api
-    depends_on:
-      prefect-server:
-        condition: service_healthy
 
 volumes:
   postgres_data:
