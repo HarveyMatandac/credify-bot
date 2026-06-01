@@ -72,14 +72,16 @@ async def behavioral_health_endpoint(payload: ValidationRequest):
             detail=AutomationResponse(
                 status="error",
                 message="Locator(s) was not detected",
-                error=ErrorDetails(error_type="Timeout Error", details=str(e)),
+                details=ErrorDetails(
+                    error_type="Timeout Error", details=str(e)
+                ),
             ),
         ) from e
 
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=AutomationResponse(
+            details=AutomationResponse(
                 status="error",
                 message="Automation Error Occured",
                 error=ErrorDetails(

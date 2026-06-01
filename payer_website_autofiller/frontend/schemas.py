@@ -1,6 +1,6 @@
 """Module containing all schemas"""
 
-from typing import Annotated, Literal, Dict, Any, Optional
+from typing import Annotated, Literal, Dict, Any, Optional, Union
 from pydantic import BaseModel, Field, EmailStr, field_validator
 from payer_website_autofiller.core import const
 
@@ -67,4 +67,4 @@ class ErrorDetails(BaseModel):
 class AutomationResponse(SuccessResponse):
     """Automation response schema with error details"""
 
-    error: Optional[ErrorDetails] = None
+    details: ErrorDetails | str | None = None

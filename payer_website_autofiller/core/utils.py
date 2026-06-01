@@ -4,10 +4,11 @@ import os
 import json
 import hashlib
 from contextlib import contextmanager
+from sqlalchemy.exc import IntegrityError
 from patchright.sync_api import sync_playwright
 from pyvirtualdisplay import Display
-from payer_website_autofiller.db.database import SessionLocal
-from payer_website_autofiller.db.models import Job
+from prefect.deployments import run_deployment
+from payer_website_autofiller.db.crud.job import create_job, get_job
 
 
 @contextmanager
@@ -44,63 +45,32 @@ def get_sync_browser_context():
             print("browser closed")
 
 
+def start_automation(payload, db, deployment_name):
+    """Start job logging and website automation"""
+    existing_job = None
+    # Hash request parameters
+    job_id = parse_payload(payload)
+
+    try:
+        # Create job item in database
+        create_job(db, job_id, "", status="Created")
+
+        # Run in existing deployment in prefect
+        run_deployment(
+            name=deployment_name,
+            parameters={"payload": payload, "job_id": job_id},
+        )
+    except IntegrityError:
+        db.rollback()
+
+        existing_job = get_job(db, job_id)
+
+        return existing_job
+
+
 def parse_payload(payload):
+    """Hash payload into sha256 string"""
     json_string = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     hash_object = hashlib.sha256(json_string.encode("utf-8")).hexdigest()
 
     return hash_object
-
-
-# Database methods and functions
-def get_db():
-    """Yield database connection"""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def create_job(db, job_id, run_id: str, status: str):
-    job = Job(job_id=job_id, run_id=run_id, status=status)
-    db.add(job)
-    db.commit()
-    db.refresh(job)
-
-    return job
-
-
-def get_job(db, job_id):
-    return db.query(Job).filter(Job.job_id == job_id).first()
-
-
-def update_job_by_job_id(db, job_id, status, run_id=None):
-    job = db.query(Job).filter(Job.job_id == job_id).first()
-    if not job:
-        return None
-
-    job.status = status
-    if run_id:
-        job.run_id = str(run_id)
-
-    db.commit()
-    db.refresh(job)
-
-
-def delete_job(db, job_id):
-    job = db.query(Job).filter(Job.job_id == job_id).first()
-    if not job:
-        return None
-
-    db.delete(job)
-    db.commit()
-
-    return job
-
-
-def update_job_on_run_state(_, flow_run, state):
-    """Prefect hook function for updating state in database realtime"""
-    with SessionLocal() as db:
-        job_id = flow_run.parameters.get("job_id")
-
-        update_job_by_job_id(db, str(job_id), state, str(flow_run.id))
