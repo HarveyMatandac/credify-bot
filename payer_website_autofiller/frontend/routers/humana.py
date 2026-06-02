@@ -81,10 +81,10 @@ async def behavioral_health_endpoint(payload: ValidationRequest):
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            details=AutomationResponse(
+            detail=AutomationResponse(
                 status="error",
                 message="Automation Error Occured",
-                error=ErrorDetails(
+                details=ErrorDetails(
                     error_type="Automation Error", details=str(e)
                 ),
             ),

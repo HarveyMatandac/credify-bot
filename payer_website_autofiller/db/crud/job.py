@@ -2,6 +2,7 @@
 
 from payer_website_autofiller.db.database import SessionLocal
 from payer_website_autofiller.db.models import Job
+from payer_website_autofiller.core import exceptions as exc
 
 
 def get_db():
@@ -23,7 +24,11 @@ def create_job(db, job_id, run_id: str, status: str):
 
 
 def get_job(db, job_id):
-    return db.query(Job).filter(Job.job_id == job_id).first()
+    job = db.query(Job).filter(Job.job_id == job_id).first()
+
+    if job is None:
+        raise exc.JobNotFoundException(job_id)
+    return
 
 
 def update_job_by_job_id(db, job_id, status, run_id=None):
@@ -42,7 +47,7 @@ def update_job_by_job_id(db, job_id, status, run_id=None):
 def delete_job(db, job_id):
     job = db.query(Job).filter(Job.job_id == job_id).first()
     if not job:
-        return None
+        raise exc.JobNotFoundException(job_id)
 
     db.delete(job)
     db.commit()
