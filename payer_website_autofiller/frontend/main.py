@@ -36,12 +36,12 @@ for router in all_routers:
 
     app.include_router(
         router,
-        prefix=f"/api/bots{base_path}",
-        tags=[payer_name.title() + " bots"],
+        prefix=f"/api{base_path}",
+        tags=[payer_name.title()],
     )
 
 # Include catch_all router
 app.include_router(
     catch_all_router,
-    tags=["catch_all"],
+    tags=["URL Format Verifier"],
 )

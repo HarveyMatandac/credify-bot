@@ -49,7 +49,7 @@ def read_sample_website_job(job_id: str, conn=Depends(get_db)):
     return {job.job_id, job.run_id, job.status}
 
 
-@router.post("/sample_website/")
+@router.post("/sample_website")
 def create_sample_website_job(payload: dict = Body(...), conn=Depends(get_db)):
     """Router for sample website automation and job creation"""
 

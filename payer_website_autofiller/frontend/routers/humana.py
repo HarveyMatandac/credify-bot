@@ -72,7 +72,7 @@ async def create_behavioral_health_job(
         raise HTTPException(
             status_code=409,
             detail=AutomationResponse(
-                status="erro    ",
+                status="error",
                 message="duplicate entry",
                 details=f"Job '{result.job_id}' already exists",
             ).model_dump(),
@@ -100,7 +100,7 @@ def read_specific_states_job(job_id: str, conn=Depends(get_db)):
 
 
 @router.post("/specific_states", response_model=AutomationResponse)
-async def specific_states_endpoint(payload: ValidationRequest):
+async def create_specific_states_job(payload: ValidationRequest):
     """Router for Specific States automation"""
     await run_deployment(
         name="humana-automations-flow/humana-specific-states",
