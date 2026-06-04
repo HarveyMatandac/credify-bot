@@ -32,10 +32,13 @@ router.base_path = "/sample_payer"  # type: ignore[attr-defined]
 )
 def sample_automation_flow(
     payload,
+    provider_type,
     job_id=None,  # pylint: disable=W0613
 ):
     """sample automation flow"""
-    sample_handler.Automation(payload).handle()
+    match provider_type:
+        case "sample_website":
+            sample_handler.Automation(payload).handle()
 
 
 @router.get("/sample_website/{job_id}")
@@ -53,6 +56,7 @@ def create_sample_website_job(payload: dict = Body(...), conn=Depends(get_db)):
     # Start website automation
     result = start_automation(
         payload=payload,
+        provider_type="sample_website",
         db=conn,
         deployment_name="sample-automation-flow/sample_website_deployment",
     )

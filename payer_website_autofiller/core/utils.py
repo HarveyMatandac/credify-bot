@@ -45,7 +45,7 @@ def get_sync_browser_context():
             print("browser closed")
 
 
-def start_automation(payload, db, deployment_name):
+def start_automation(payload, provider_type, db, deployment_name):
     """Start job logging and website automation"""
     existing_job = None
     # Hash request parameters
@@ -58,7 +58,11 @@ def start_automation(payload, db, deployment_name):
         # Run in existing deployment in prefect
         run_deployment(
             name=deployment_name,
-            parameters={"payload": payload, "job_id": job_id},
+            parameters={
+                "payload": payload,
+                "provider_type": provider_type,
+                "job_id": job_id,
+            },
         )
     except IntegrityError:
         db.rollback()

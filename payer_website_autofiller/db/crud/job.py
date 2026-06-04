@@ -28,7 +28,8 @@ def get_job(db, job_id):
 
     if job is None:
         raise exc.JobNotFoundException(job_id)
-    return
+
+    return job
 
 
 def update_job_by_job_id(db, job_id, status, run_id=None):
