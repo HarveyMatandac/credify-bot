@@ -1,6 +1,6 @@
 """Router for sample payer automation"""
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from prefect import flow
 from payer_website_autofiller.core.utils import (
     start_automation,
@@ -15,6 +15,7 @@ from payer_website_autofiller.bots.sample_payer.sample_website import (
     handler as sample_handler,
 )
 from payer_website_autofiller.frontend.schemas import (
+    Payload,
     AutomationResponse,
 )
 
@@ -50,7 +51,7 @@ def read_sample_website_job(job_id: str, conn=Depends(get_db)):
 
 
 @router.post("/sample_website")
-def create_sample_website_job(payload: dict = Body(...), conn=Depends(get_db)):
+def create_sample_website_job(payload: Payload, conn=Depends(get_db)):
     """Router for sample website automation and job creation"""
 
     # Start website automation

@@ -1,51 +1,77 @@
 """Module containing all schemas"""
 
-from typing import Annotated, Literal, Dict, Any
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from typing import Optional, Annotated, Literal, Dict, Any
+from pydantic import (
+    BaseModel,
+    Field,
+    EmailStr,
+    field_validator,
+    StringConstraints,
+)
 from payer_website_autofiller.core import const
 
 payer_list = const.SAMPLE_PAYER_LIST
 
 
-class ProviderInfo(BaseModel):
+class EnrollmentData(BaseModel):
+    type: Literal["individual", "group"]
+    specialty: str
+    enrollment_status: str
+
+
+class NameInfo(BaseModel):
+    """Provider Name Model"""
+
+    first_name: str
+    middle_name: Optional[str] = None
+    last_name: str
+    suffix: Optional[str] = None
+
+
+class ContactInfo(BaseModel):
+    """Contact Info of provider model"""
+
+    mobile_number: Optional[str] = None
+    telephone_number: Optional[str] = None
+    email: EmailStr
+
+
+class IdentificationNumbers(BaseModel):
+    """Model for validating Identification numbers like tin and NPI"""
+
+    tin: Annotated[str, Field(min_length=9, max_length=12)]
+    npi: Annotated[str, Field(min_length=10, max_length=10)]
+
+
+class AddressInfo(BaseModel):
+    unit: Optional[str] = None
+    building: Optional[str] = None
+    street: Optional[str] = None
+    city: str
+    county: Optional[str] = None
+    state: Optional[str] = None
+    zip_code: Annotated[str, StringConstraints(pattern=r"^\d{3,10}$")]
+    country: str
+
+
+class BasicInfo(BaseModel):
     """Provider basic info"""
 
-    provider_name: str
-    practice_tin: Annotated[str, Field(min_length=9, max_length=12)]
-    practice_npi: Annotated[str, Field(min_length=10, max_length=10)]
-    provider_npi: Annotated[str, Field(min_length=10, max_length=10)]
-    contact_name: str
-    contact_email: EmailStr
-    telehealth_only: Literal["Yes", "No"] = "No"
+    name: NameInfo
+    contact_info: ContactInfo
+    identification_numbers: IdentificationNumbers
+    address: AddressInfo
 
 
-class PayerInfo(BaseModel):
-    """Payer information"""
-
-    payer: str
-    state: str
-
-    @field_validator("payer")
-    @classmethod
-    def _validate_payer(cls, v: str):
-        if v not in payer_list:
-            raise ValueError("Payer given is not valid")
-        return v
-
-
-class DataPayload(PayerInfo):
-    """Payload schema"""
-
-    fill_values: ProviderInfo
-    request_type: Dict[str, Any] | None = None
+class ProviderData(BaseModel):
+    enrollment_data: EnrollmentData
+    basic_info: BasicInfo
 
     model_config = {"extra": "allow"}
 
 
-class ValidationRequest(BaseModel):
-    """JSON data schema"""
-
-    data: DataPayload
+class Payload(BaseModel):
+    provider_data: ProviderData
 
 
 # Success model

@@ -10,7 +10,7 @@ from payer_website_autofiller.bots.humana.specific_states import (
     handler as ss_handler,
 )
 from payer_website_autofiller.frontend.schemas import (
-    ValidationRequest,
+    # ValidationRequest,
     AutomationResponse,
 )
 from payer_website_autofiller.db.crud.job import (
@@ -55,9 +55,7 @@ def read_behavioral_health_job(job_id: str, conn=Depends(get_db)):
 
 
 @router.post("/behavioral_health", response_model=AutomationResponse)
-async def create_behavioral_health_job(
-    payload: ValidationRequest, conn=Depends(get_db)
-):
+async def create_behavioral_health_job(payload, conn=Depends(get_db)):
     """Router for Behavioral Health automation"""
 
     # Start website automation
@@ -100,7 +98,7 @@ def read_specific_states_job(job_id: str, conn=Depends(get_db)):
 
 
 @router.post("/specific_states", response_model=AutomationResponse)
-async def create_specific_states_job(payload: ValidationRequest):
+async def create_specific_states_job(payload):
     """Router for Specific States automation"""
     await run_deployment(
         name="humana-automations-flow/humana-specific-states",

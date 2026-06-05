@@ -74,7 +74,9 @@ def start_automation(payload, provider_type, db, deployment_name):
 
 def parse_payload(payload):
     """Hash payload into sha256 string"""
-    json_string = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    json_string = json.dumps(
+        payload.model_dump(), sort_keys=True, separators=(",", ":")
+    )
     hash_object = hashlib.sha256(json_string.encode("utf-8")).hexdigest()
 
     return hash_object

@@ -118,7 +118,7 @@ class Automation:
 
 
 if __name__ == "__main__":
-    with open("tests/inputs/template_json", "r", encoding="utf-8") as file:
+    with open("tests/inputs/template.json", "r", encoding="utf-8") as file:
         dummy_payload = json.load(file)
 
     Automation(dummy_payload).handle()
