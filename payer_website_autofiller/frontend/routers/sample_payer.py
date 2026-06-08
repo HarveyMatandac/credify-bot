@@ -1,6 +1,6 @@
 """Router for sample payer automation"""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from prefect import flow
 from payer_website_autofiller.core.utils import (
     start_automation,
@@ -17,6 +17,7 @@ from payer_website_autofiller.bots.sample_payer.sample_website import (
 from payer_website_autofiller.frontend.schemas import (
     Payload,
     AutomationResponse,
+    RequestDuplicateEntryError,
 )
 
 router = APIRouter()
@@ -63,14 +64,7 @@ def create_sample_website_job(payload: Payload, conn=Depends(get_db)):
     )
 
     if result:
-        raise HTTPException(
-            status_code=409,
-            detail=AutomationResponse(
-                status="error",
-                message="duplicate entry",
-                details=f"Job '{result.job_id}' already exists",
-            ).model_dump(),
-        )
+        raise RequestDuplicateEntryError()
 
     return AutomationResponse(
         status="success", message="Automation Successful!"

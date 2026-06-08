@@ -61,4 +61,6 @@ def update_job_on_run_state(_, flow_run, state):
     with SessionLocal() as db:
         job_id = flow_run.parameters.get("job_id")
 
-        update_job_by_job_id(db, str(job_id), state, str(flow_run.id))
+        update_job_by_job_id(
+            db, str(job_id), state.type.value, str(flow_run.id)
+        )

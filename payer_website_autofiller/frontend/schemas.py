@@ -1,6 +1,7 @@
 """Module containing all schemas"""
 
 from typing import Optional, Annotated, Literal, Dict, Any
+from fastapi import HTTPException, status
 from pydantic import (
     BaseModel,
     Field,
@@ -88,6 +89,34 @@ class ErrorDetails(BaseModel):
 
     error_type: str
     details: str
+
+
+class RequestDuplicateEntryError(HTTPException):
+    """_summary_
+
+    Args:
+        HTTPException (_type_): _description_
+    """
+
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "error": "Existing Request",
+                "message": "Revise payload required",
+            },
+        )
+
+
+class EndpointNotValidError(HTTPException):
+    def __init__(self, endpoint_url):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "error": f"Route '{endpoint_url}' not supported",
+                "message": "Input correct endpoint url",
+            },
+        )
 
 
 class AutomationResponse(SuccessResponse):

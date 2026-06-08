@@ -2,6 +2,7 @@
 
 import enum
 from fastapi import APIRouter, HTTPException
+from payer_website_autofiller.frontend.schemas import EndpointNotValidError
 
 router = APIRouter()
 router.prefix = "/api"
@@ -23,7 +24,4 @@ async def url_format_verifier(payer: SupportedPayer, provider_type):
     endpoint_url = f"{router.prefix}/{payer.value}/{provider_type}"
 
     # Raise error not found http exception
-    raise HTTPException(
-        status_code=404,
-        detail=f"Route '{endpoint_url}' not supported",
-    )
+    raise EndpointNotValidError(endpoint_url)
