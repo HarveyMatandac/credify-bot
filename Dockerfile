@@ -28,11 +28,13 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     x11-utils \
     && rm -rf /var/lib/apt/lists/*
-RUN uvx patchright install --with-deps chromium
+
 
 COPY --from=builder /app/.venv /app/.venv
 
 ENV VIRTUAL_ENV=/app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
+
+RUN patchright install --with-deps chromium
 
 CMD ["uv", "run", "uvicorn", "payer_website_autofiller.frontend.main:app", "--host", "0.0.0.0", "--port", "8000"]

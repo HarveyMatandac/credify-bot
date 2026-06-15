@@ -5,6 +5,7 @@ import json
 import hashlib
 from contextlib import contextmanager
 from sqlalchemy.exc import IntegrityError
+from prefect.client.schemas import FlowRun
 from patchright.sync_api import sync_playwright
 from pyvirtualdisplay import Display
 from prefect.deployments import run_deployment
@@ -45,31 +46,25 @@ def get_sync_browser_context():
             print("browser closed")
 
 
-def start_automation(payload, provider_type, db, deployment_name):
+def start_automation(payload, provider_type, db, deployment_name) -> FlowRun:
     """Start job logging and website automation"""
     existing_job = None
     # Hash request parameters
     job_id = parse_payload(payload)
 
-    try:
-        # Create job item in database
-        create_job(db, job_id, "", status="Created")
+    flow_run = run_deployment(
+        name=deployment_name,
+        parameters={
+            "payload": payload,
+            "provider_type": provider_type,
+            "job_id": job_id,
+        },
+        timeout=0,
+    )
 
-        # Run in existing deployment in prefect
-        run_deployment(
-            name=deployment_name,
-            parameters={
-                "payload": payload,
-                "provider_type": provider_type,
-                "job_id": job_id,
-            },
-        )
-    except IntegrityError:
-        db.rollback()
+    assert isinstance(flow_run, FlowRun)
 
-        existing_job = get_job(db, job_id)
-
-        return existing_job
+    return flow_run
 
 
 def parse_payload(payload):

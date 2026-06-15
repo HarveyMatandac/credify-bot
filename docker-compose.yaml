@@ -16,6 +16,9 @@ x-settings:
     depends_on:
       prefect-server:
         condition: service_healthy
+    # volumes:
+    #   - playwright-cache:/root/.cache/ms-playwright
+
         
 services:
   api:
@@ -28,6 +31,16 @@ services:
       - ./.python-version:/app/.python-version
       - ./payer_website_autofiller:/app/payer_website_autofiller
       - ./videos:/app/videos
+      # - playwright-cache:/root/.cache/ms-playwright
+    working_dir: /app
+    command:
+      - uv
+      - run
+      - uvicorn
+      - payer_website_autofiller.frontend.main:app
+      - --reload
+      - --host=0.0.0.0
+      - --port=8000
     ports:
       - "8000:8000"
     environment:
@@ -144,6 +157,7 @@ services:
     command: uv run -m payer_website_autofiller.workers.sample_payer.sample_website_worker
 
 volumes:
+  # playwright-cache:
   postgres_data:
   valkey_data:
   mysql_data:

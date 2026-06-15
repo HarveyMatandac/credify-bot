@@ -4,12 +4,14 @@ import json
 from dataclasses import dataclass
 from prefect import task
 from prefect.cache_policies import NO_CACHE
+from patchright.sync_api import TimeoutError as PlaywrightTimeoutError
 from payer_website_autofiller.core.utils import (
     get_sync_browser_context,
     get_virtual_display,
 )
+from payer_website_autofiller.frontend.schemas import NavigationError
 
-URL = "https://fill.dev/"
+URL = "https://fill.dev/not-exist"
 
 
 @dataclass
@@ -38,9 +40,14 @@ class Automation:
 
     @task(cache_policy=NO_CACHE)
     def _access_url(self, page):
-        page.goto(URL)
-
-        # return page
+        try:
+            page.goto(URL, timeout=10000)
+        except PlaywrightTimeoutError as e:
+            return NavigationError(
+                URL,
+                "sample_website",
+                "_access_url",
+            )
 
     @task
     def _extract_info(self) -> Info:
@@ -100,21 +107,15 @@ class Automation:
 
     def handle(self):
         """main process"""
-        try:
-            with get_virtual_display():
-                with get_sync_browser_context() as context:
-                    page = context.new_page()
 
-                    self._access_url(page)
-                    self._page_1_process(page)
-                    self._page_2_process(page)
+        with get_virtual_display():
+            with get_sync_browser_context() as context:
+                page = context.new_page()
 
-                    # For visual checking
-                    page.wait_for_timeout(5_000)
+                self._access_url(page)
 
-        except Exception as e:  # pylint: disable=broad-except
-            print(str(e))
-            raise Exception from e  # pylint: disable=broad-exception-raised
+                # For visual checking
+                page.wait_for_timeout(5_000)
 
 
 if __name__ == "__main__":
