@@ -1,5 +1,6 @@
 """Module for job related database functions functions"""
 
+from prefect.client.schemas import FlowRun
 from payer_website_autofiller.db.database import SessionLocal
 from payer_website_autofiller.db.models import Job
 from payer_website_autofiller.core import exceptions as exc
@@ -14,8 +15,13 @@ def get_db():
         db.close()
 
 
-def create_job(db, job_id, run_id: str, status: str):
-    job = Job(job_id=job_id, run_id=run_id, status=status)
+def create_job(db, job_id, flow_run: FlowRun):
+
+    job = Job(
+        job_id=job_id,
+        run_id=flow_run.id,
+        status=flow_run.state.name if flow_run.state else None,
+    )
     db.add(job)
     db.commit()
     db.refresh(job)
@@ -26,8 +32,8 @@ def create_job(db, job_id, run_id: str, status: str):
 def get_job(db, job_id):
     job = db.query(Job).filter(Job.job_id == job_id).first()
 
-    if job is None:
-        raise exc.JobNotFoundException(job_id)
+    # if job is None:
+    #     raise exc.JobNotFoundException(job_id)
 
     return job
 
@@ -47,8 +53,8 @@ def update_job_by_job_id(db, job_id, status, run_id=None):
 
 def delete_job(db, job_id):
     job = db.query(Job).filter(Job.job_id == job_id).first()
-    if not job:
-        raise exc.JobNotFoundException(job_id)
+    # if not job:
+    #     raise exc.JobNotFoundException(job_id)
 
     db.delete(job)
     db.commit()

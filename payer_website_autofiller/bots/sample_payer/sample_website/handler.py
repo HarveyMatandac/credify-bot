@@ -9,7 +9,9 @@ from payer_website_autofiller.core.utils import (
     get_sync_browser_context,
     get_virtual_display,
 )
-from payer_website_autofiller.frontend.schemas import NavigationError
+from payer_website_autofiller.core.exceptions.automation_exceptions import (
+    NavigationError,
+)
 
 URL = "https://fill.dev/not-exist"
 

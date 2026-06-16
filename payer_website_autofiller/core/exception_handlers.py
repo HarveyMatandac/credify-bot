@@ -9,13 +9,7 @@ from payer_website_autofiller.frontend.schemas import (
     ErrorDetails,
     AutomationResponse,
 )
-
-
-class JobNotFoundException(Exception):
-    """Exception for if job is not found in database"""
-
-    def __init__(self, job_id: str):
-        self.job_id = job_id
+from payer_website_autofiller.core.exceptions import app_exceptions as app_exc
 
 
 def register_exception_handlers(app: FastAPI):
@@ -47,9 +41,9 @@ def register_exception_handlers(app: FastAPI):
             ).model_dump(),
         )
 
-    @app.exception_handler(JobNotFoundException)
+    @app.exception_handler(app_exc.JobNotFoundException)
     async def job_not_found_handler(
-        request: Request, exc: JobNotFoundException
+        request: Request, exc: app_exc.JobNotFoundException
     ):
         return JSONResponse(
             status_code=404,

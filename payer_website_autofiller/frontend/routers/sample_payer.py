@@ -1,25 +1,26 @@
 """Router for sample payer automation"""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from prefect import flow
-from prefect.client.schemas import FlowRun
 from payer_website_autofiller.core.utils import start_automation, parse_payload
 from payer_website_autofiller.db.crud.job import (
     get_db,
     get_job,
-    update_job_on_run_state,
+    create_job,
+    # update_job_on_run_state,
     delete_job,
 )
 from payer_website_autofiller.bots.sample_payer.sample_website import (
     handler as sample_handler,
 )
-from prefect.deployments import run_deployment
 from payer_website_autofiller.frontend.schemas import (
     Payload,
-    AutomationResponse,
-    AutomationError,
-    RequestDuplicateEntryError,
 )
+from payer_website_autofiller.core.exceptions.automation_exceptions import (
+    AutomationError,
+)
+from payer_website_autofiller.core import responses
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter()
 router.base_path = "/sample_payer"  # type: ignore[attr-defined]
@@ -65,20 +66,22 @@ def create_sample_website_job(
 
     job_id = parse_payload(payload)
 
-    run_deployment(
-        name="sample-automation-flow/sample_website_deployment",
-        parameters={
-            "payload": payload,
-            "provider_type": "sample_website",
-        },
-        # timeout=0,
+    # Check if job_id already exists
+    job = get_job(conn, job_id)
+    if job:
+        return responses.DuplicateJobAcceptedResponse(job_id)
+
+    # Start automation
+    flow_run = start_automation(
+        payload,
+        "sample_website",
+        conn,
+        "sample-automation-flow/sample_website_deployment",
     )
 
-    # assert isinstance(flow_run, FlowRun)
+    create_job(conn, job_id, flow_run)
 
-    return {
-        "job_id": job_id,
-    }
+    return responses.JobCreatedResponse(job_id)
 
 
 @router.delete("/sample_website/{job_id}")

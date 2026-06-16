@@ -16,22 +16,18 @@ x-settings:
     depends_on:
       prefect-server:
         condition: service_healthy
-    # volumes:
-    #   - playwright-cache:/root/.cache/ms-playwright
-
         
 services:
   api:
     build:
       target:  api
-    image: test-autofill-app-with-prefect-api-sample-website
+    # image: test-autofill-app-with-prefect-api-sample-website
     volumes: 
       - ./pyproject.toml:/app/pyproject.toml
       - ./uv.lock:/app/uv.lock
       - ./.python-version:/app/.python-version
       - ./payer_website_autofiller:/app/payer_website_autofiller
       - ./videos:/app/videos
-      # - playwright-cache:/root/.cache/ms-playwright
     working_dir: /app
     command:
       - uv
@@ -157,7 +153,6 @@ services:
     command: uv run -m payer_website_autofiller.workers.sample_payer.sample_website_worker
 
 volumes:
-  # playwright-cache:
   postgres_data:
   valkey_data:
   mysql_data:

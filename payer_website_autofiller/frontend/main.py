@@ -3,7 +3,7 @@
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from payer_website_autofiller.core.exceptions import (
+from payer_website_autofiller.core.exception_handlers import (
     register_exception_handlers,
 )
 from payer_website_autofiller.frontend.routers import all_routers

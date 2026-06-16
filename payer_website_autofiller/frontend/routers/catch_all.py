@@ -1,8 +1,10 @@
 """Router for catch_all endpoint"""
 
 import enum
-from fastapi import APIRouter, HTTPException
-from payer_website_autofiller.frontend.schemas import EndpointNotValidError
+from fastapi import APIRouter
+from payer_website_autofiller.core.exceptions.app_exceptions import (
+    EndpointNotValidError,
+)
 
 router = APIRouter()
 router.prefix = "/api"

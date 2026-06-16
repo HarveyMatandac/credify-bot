@@ -10,6 +10,7 @@ from patchright.sync_api import sync_playwright
 from pyvirtualdisplay import Display
 from prefect.deployments import run_deployment
 from payer_website_autofiller.db.crud.job import create_job, get_job
+from payer_website_autofiller.core.exceptions import app_exceptions
 
 
 @contextmanager
@@ -48,7 +49,6 @@ def get_sync_browser_context():
 
 def start_automation(payload, provider_type, db, deployment_name) -> FlowRun:
     """Start job logging and website automation"""
-    existing_job = None
     # Hash request parameters
     job_id = parse_payload(payload)
 
@@ -62,9 +62,10 @@ def start_automation(payload, provider_type, db, deployment_name) -> FlowRun:
         timeout=0,
     )
 
-    assert isinstance(flow_run, FlowRun)
+    if flow_run is None:
+        raise app_exceptions.FlowRunIsNoneError(job_id)
 
-    return flow_run
+    return flow_run  # type: ignore[return-value]
 
 
 def parse_payload(payload):
