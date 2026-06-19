@@ -19,7 +19,7 @@ def create_job(db, job_id, flow_run: FlowRun):
 
     job = Job(
         job_id=job_id,
-        run_id=flow_run.id,
+        run_id=str(flow_run.id),
         status=flow_run.state.name if flow_run.state else None,
     )
     db.add(job)

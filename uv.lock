@@ -1607,7 +1607,7 @@ requires-dist = [
     { name = "mysql-connector-python", specifier = ">=9.7.0" },
     { name = "numpy", specifier = ">=2.4.4" },
     { name = "pandas", specifier = ">=3.0.2" },
-    { name = "patchright", specifier = ">=1.59.1" },
+    { name = "patchright", specifier = "==1.60.1" },
     { name = "prefect", specifier = ">=3" },
     { name = "pydantic", specifier = ">=2.13.0" },
     { name = "pydantic-extra-types", specifier = ">=2.11.1" },

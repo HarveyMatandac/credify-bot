@@ -1,4 +1,4 @@
-"""Handler for Humana website"""
+"""Handler for Sample website"""
 
 import json
 from dataclasses import dataclass
@@ -44,14 +44,10 @@ class Automation:
     def _access_url(self, page):
         try:
             page.goto(URL, timeout=10000)
-        except PlaywrightTimeoutError as e:
-            return NavigationError(
-                URL,
-                "sample_website",
-                "_access_url",
-            )
+        except PlaywrightTimeoutError:
+            raise NavigationError(URL, "sample_website", "_access_url")
 
-    @task
+    @task(cache_policy=NO_CACHE)
     def _extract_info(self) -> Info:
         basic_info = self.payload["provider_data"]["basic_info"]
         name_dict = basic_info["name"]
@@ -63,7 +59,10 @@ class Automation:
             last_name=name_dict["last_name"],
             phone_number=basic_info["contact_info"]["telephone_number"],
             street_address_1=", ".join(
-                item for item in list(full_address_dict.values())[:2]
+                filter(None, [
+                    full_address_dict.get("unit"),
+                    full_address_dict.get("building"),
+                ])
             ),
             street_address_2=full_address_dict.get("street"),
             city=full_address_dict["city"],
@@ -115,9 +114,8 @@ class Automation:
                 page = context.new_page()
 
                 self._access_url(page)
-
-                # For visual checking
-                page.wait_for_timeout(5_000)
+                self._page_1_process(page)
+                self._page_2_process(page)
 
 
 if __name__ == "__main__":

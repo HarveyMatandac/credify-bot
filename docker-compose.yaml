@@ -28,6 +28,7 @@ services:
       - ./.python-version:/app/.python-version
       - ./payer_website_autofiller:/app/payer_website_autofiller
       - ./videos:/app/videos
+      - ./tests:/app/tests
     working_dir: /app
     command:
       - uv
@@ -40,6 +41,7 @@ services:
     ports:
       - "8000:8000"
     environment:
+      PYTHONPATH: /app
       PREFECT_API_URL: http://prefect-server:4200/api
     depends_on:
       db:

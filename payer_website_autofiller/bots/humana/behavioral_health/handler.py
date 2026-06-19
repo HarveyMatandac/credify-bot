@@ -1,6 +1,7 @@
 """Handler for Humana website"""
 
-import time
+from prefect import task
+from prefect.cache_policies import NO_CACHE
 from payer_website_autofiller.core.utils import (
     get_sync_browser_context,
     get_virtual_display,
@@ -27,6 +28,7 @@ class Automation:
         self.payload = payload
         self.question_locators = {}
 
+    @task(cache_policy=NO_CACHE)
     def initialize_locators(self, page):
         """Initialize locators needed"""
         self.question_locators = {}
@@ -76,67 +78,69 @@ class Automation:
             "button", name="Next"
         )
 
+    @task(cache_policy=NO_CACHE)
     def crawl(self):
         """Crawl and autofill website"""
+        self.question_locators["practice_description"].wait_for(state="visible")
         self.question_locators["practice_description"].get_by_role(
             "radio",
             name="I (or providers participating under my TIN) accept Medicare,"
             + " but not Medicaid",
         ).check()
-        time.sleep(5)
+
+        self.question_locators["telehealth_only"].wait_for(state="visible")
         self.question_locators["telehealth_only"].get_by_role(
             "radio", name="No"
         ).check()
-        time.sleep(5)
+
+        self.question_locators["provider_name"].wait_for(state="visible")
         self.question_locators["provider_name"].get_by_role("textbox").fill(
             TEST_PROVIDER_NAME
         )
-        time.sleep(5)
+
+        self.question_locators["practice_tin"].wait_for(state="visible")
         self.question_locators["practice_tin"].get_by_role("textbox").fill(
             TEST_PRACTICE_TIN
         )
-        time.sleep(5)
+
+        self.question_locators["practice_npi"].wait_for(state="visible")
         self.question_locators["practice_npi"].get_by_role("textbox").fill(
             TEST_PRACTICE_NPI
         )
-        time.sleep(5)
+
+        self.question_locators["provider_npi"].wait_for(state="visible")
         self.question_locators["provider_npi"].get_by_role("textbox").fill(
             TEST_PROVIDER_NPI
         )
-        time.sleep(5)
+
+        self.question_locators["contact_name"].wait_for(state="visible")
         self.question_locators["contact_name"].get_by_role("textbox").fill(
             TEST_CONTACT_NAME
         )
-        time.sleep(5)
+
+        self.question_locators["contact_email"].wait_for(state="visible")
         self.question_locators["contact_email"].get_by_role("textbox").fill(
             TEST_CONTACT_EMAIL
         )
-        time.sleep(5)
+
+        self.question_locators["practice_specific_states"].wait_for(state="visible")
         self.question_locators["practice_specific_states"].get_by_role(
             "radio",
             name="Yes",
         ).check()
-        time.sleep(5)
+
         self.question_locators["next_button"].click()
         print("running")
 
     def handle(self):
         """main process"""
-        try:
-            with get_virtual_display():
-                with get_sync_browser_context() as context:
-                    page = context.new_page()
+        with get_virtual_display():
+            with get_sync_browser_context() as context:
+                page = context.new_page()
 
-                    page.goto(URL)
-                    self.initialize_locators(page)
-                    self.crawl()
-
-                    # For visual checking
-                    page.wait_for_timeout(30_000)
-
-        except Exception as e:  # pylint: disable=broad-except
-            print(str(e))
-            raise Exception from e  # pylint: disable=broad-exception-raised
+                page.goto(URL)
+                self.initialize_locators(page)
+                self.crawl()
 
 
 if __name__ == "__main__":
