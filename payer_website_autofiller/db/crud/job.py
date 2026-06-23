@@ -30,12 +30,7 @@ def create_job(db, job_id, flow_run: FlowRun):
 
 
 def get_job(db, job_id):
-    job = db.query(Job).filter(Job.job_id == job_id).first()
-
-    # if job is None:
-    #     raise exc.JobNotFoundException(job_id)
-
-    return job
+    return db.query(Job).filter(Job.job_id == job_id).first()
 
 
 def update_job_by_job_id(db, job_id, status, run_id=None):
@@ -51,10 +46,17 @@ def update_job_by_job_id(db, job_id, status, run_id=None):
     db.refresh(job)
 
 
+def update_job_by_run_id(db, run_id: str, status: str):
+    job = db.query(Job).filter(Job.run_id == run_id).first()
+
+    job.status = status
+
+    db.commit()
+    db.refresh(job)
+
+
 def delete_job(db, job_id):
     job = db.query(Job).filter(Job.job_id == job_id).first()
-    # if not job:
-    #     raise exc.JobNotFoundException(job_id)
 
     db.delete(job)
     db.commit()
@@ -65,8 +67,8 @@ def delete_job(db, job_id):
 def update_job_on_run_state(_, flow_run, state):
     """Prefect hook function for updating state in database realtime"""
     with SessionLocal() as db:
-        job_id = flow_run.parameters.get("job_id")
-
-        update_job_by_job_id(
-            db, str(job_id), state.type.value, str(flow_run.id)
+        update_job_by_run_id(
+            db,
+            str(flow_run.id),
+            state.name,
         )

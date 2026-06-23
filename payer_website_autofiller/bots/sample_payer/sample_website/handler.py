@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from prefect import task
 from prefect.cache_policies import NO_CACHE
 from patchright.sync_api import TimeoutError as PlaywrightTimeoutError
+from patchright.sync_api import Error as PlaywrightError
 from payer_website_autofiller.core.utils import (
     get_sync_browser_context,
     get_virtual_display,
@@ -44,8 +45,10 @@ class Automation:
     def _access_url(self, page):
         try:
             page.goto(URL, timeout=10000)
-        except PlaywrightTimeoutError:
-            raise NavigationError(URL, "sample_website", "_access_url")
+        except PlaywrightTimeoutError as e:
+            raise NavigationError(URL, "sample_website", "_access_url") from e
+        except PlaywrightError as e:
+            raise NavigationError(URL, "sample_website", "_access_url") from e
 
     @task(cache_policy=NO_CACHE)
     def _extract_info(self) -> Info:
@@ -59,10 +62,13 @@ class Automation:
             last_name=name_dict["last_name"],
             phone_number=basic_info["contact_info"]["telephone_number"],
             street_address_1=", ".join(
-                filter(None, [
-                    full_address_dict.get("unit"),
-                    full_address_dict.get("building"),
-                ])
+                filter(
+                    None,
+                    [
+                        full_address_dict.get("unit"),
+                        full_address_dict.get("building"),
+                    ],
+                )
             ),
             street_address_2=full_address_dict.get("street"),
             city=full_address_dict["city"],

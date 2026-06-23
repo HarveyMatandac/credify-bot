@@ -1,7 +1,6 @@
 """Module for automation related custom exceptions"""
 
 from fastapi import status
-from patchright.sync_api import TimeoutError
 
 
 class AutomationError(Exception):
@@ -34,7 +33,7 @@ class AutomationError(Exception):
         if self.step:
             return (
                 f"{base_err_message} (automation={self.automation_name}, "
-                "step={self.step})"
+                f"step={self.step})"
             )
 
         return base_err_message
@@ -65,13 +64,29 @@ class NavigationError(AutomationError):
         )
 
 
-class LocatorNotFoundError(Exception):
-    def __init__(self, message="Locator not found"):
-        self.status_code = status.HTTP_404_NOT_FOUND
-        super().__init__(message)
+class LocatorNotFoundError(AutomationError):
+    """Automation error subclass for undetectable Playwright elements"""
+
+    def __init__(
+        self,
+        automation_name,
+        step,
+    ):
+        super().__init__(
+            message=f"Locator not found",
+            automation_name=automation_name,
+            step=step,
+        )
 
 
-class PlaywrightTimeoutError(TimeoutError):
-    def __init__(self, message="Locator did not appear within timeout"):
-        self.status_code = status.HTTP_408_REQUEST_TIMEOUT
-        super().__init__(message)
+class PlaywrightTimeoutError(AutomationError):
+    def __init__(
+        self,
+        automation_name,
+        step,
+    ):
+        super().__init__(
+            message=f"",
+            automation_name=automation_name,
+            step=step,
+        )

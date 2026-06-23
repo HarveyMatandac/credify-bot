@@ -57,7 +57,6 @@ def start_automation(payload, provider_type, db, deployment_name) -> FlowRun:
         parameters={
             "payload": payload,
             "provider_type": provider_type,
-            "job_id": job_id,
         },
         timeout=0,
     )

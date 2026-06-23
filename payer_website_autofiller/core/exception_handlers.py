@@ -10,6 +10,7 @@ from payer_website_autofiller.frontend.schemas import (
     AutomationResponse,
 )
 from payer_website_autofiller.core.exceptions import app_exceptions as app_exc
+from payer_website_autofiller.core import responses
 
 
 def register_exception_handlers(app: FastAPI):
@@ -30,26 +31,24 @@ def register_exception_handlers(app: FastAPI):
 
     @app.exception_handler(Exception)
     async def generic_handler(request: Request, exc: Exception):
-        return JSONResponse(
-            status_code=500,
-            content=AutomationResponse(
-                status="error",
-                message="Automation Error Occured",
-                details=ErrorDetails(
-                    error_type="Automation Error", details=str(exc)
-                ),
-            ).model_dump(),
-        )
+        return responses.InternalServerErrorResponse()
 
     @app.exception_handler(app_exc.JobNotFoundException)
     async def job_not_found_handler(
         request: Request, exc: app_exc.JobNotFoundException
     ):
-        return JSONResponse(
-            status_code=404,
-            content=AutomationResponse(
-                status="error",
-                message="Not found",
-                details=f"Job {exc.job_id} not found",
-            ).model_dump(),
-        )
+        return responses.RequestNotFound(exc.job_id)
+
+    @app.exception_handler(app_exc.FlowRunIsNoneError)
+    async def prefect_flow_handler(
+        request: Request,
+        exc: app_exc.FlowRunIsNoneError,
+    ):
+        return responses.PrefectDeploymentErrorResponse(exc.job_id)
+
+    @app.exception_handler(app_exc.EndpointNotValidError)
+    async def catch_all_handler(
+        request: Request,
+        exc: app_exc.EndpointNotValidError,
+    ):
+        return responses.PrefectDeploymentErrorResponse(exc.endpoint_url)

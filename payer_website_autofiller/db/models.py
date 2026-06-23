@@ -8,3 +8,4 @@ class Job(Base):
     job_id = Column(String(100), primary_key=True)
     run_id = Column(String(50))
     status = Column(String(20))
+    # Add error_details column
