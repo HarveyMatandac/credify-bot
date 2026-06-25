@@ -65,28 +65,47 @@ class NavigationError(AutomationError):
 
 
 class LocatorNotFoundError(AutomationError):
-    """Automation error subclass for undetectable Playwright elements"""
+    """A locator matched zero (or ambiguous) elements — the page layout changed."""
 
     def __init__(
         self,
         automation_name,
-        step,
+        step=None,
     ):
         super().__init__(
-            message=f"Locator not found",
+            message="Element was not found on the page",
             automation_name=automation_name,
             step=step,
         )
 
 
 class PlaywrightTimeoutError(AutomationError):
+    """Expected element never appeared / became interactable within the timeout."""
+
     def __init__(
         self,
         automation_name,
-        step,
+        step=None,
     ):
         super().__init__(
-            message=f"",
+            message="Element did not appear or become interactable in time",
             automation_name=automation_name,
             step=step,
+        )
+
+
+class DataExtractionError(AutomationError):
+    """Raised when a required field is missing from the payload."""
+
+    def __init__(
+        self,
+        field,
+        automation_name,
+        step=None,
+    ):
+        super().__init__(
+            message=f"Required field '{field}' is missing from the payload",
+            automation_name=automation_name,
+            step=step,
+            context={"field": field},
         )
